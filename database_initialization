@@ -1,0 +1,324 @@
+drop database if exists restaurant;
+create database restaurant;
+use restaurant;
+
+create table customerAccount(
+    emailAddress varchar(100),
+    firstName varchar(100),
+    lastName varchar(100),
+    cellNum varchar(10),
+    streetAddress varchar(100),
+    city varchar(100),
+    pc varchar(10),
+    creditAmt decimal(6, 2),
+    primary key (emailAddress));
+
+create table foodOrder(
+	orderID integer,
+	totalPrice decimal(6,2),
+	tip decimal(6, 2),
+    orderDate date,
+	primary key (orderID));
+
+create table food (
+	name varchar(100),
+    -- orderDate date,
+	primary key (name));
+
+create table restaurant(
+	name varchar(100),
+	streetAddress varchar(100),
+	city varchar(100),
+	pc char(10),
+	url varchar(200),
+	primary key (name));
+
+create table employee(
+	ID integer,
+	firstName varchar(100),
+	lastName varchar(100),
+	emailAddress varchar(100),
+    restaurantName varchar(100),
+	primary key (ID),
+    foreign key(restaurantName) references restaurant(name));
+
+create table manager(
+	empid integer primary key,
+	foreign key (empid) references employee(ID) on delete cascade);
+
+create table serverStaff(
+	empid integer primary key,
+	foreign key (empid) references employee(ID) on delete cascade);
+
+create table chef(
+	empid integer primary key,
+	foreign key (empid) references employee(ID) on delete cascade);
+
+create table deliveryPerson(
+	empid integer primary key,
+	foreign key (empid) references employee(ID) on delete cascade);
+
+create table payment(
+	customerEmail varchar(100),
+	dates date not null,
+	paymentAmount decimal(6,2) not null,
+	primary key (customerEmail, dates),
+	foreign key (customerEmail) references customerAccount(emailAddress) on delete cascade);
+
+create table shift(
+	empID integer not null,
+	theday varchar(15) not null,
+	startTime time not null,
+	endTime time not null,
+	primary key (empID, theday),
+	foreign key (empID) references employee(ID) on delete cascade);
+
+create table chefCredentials (
+	empID integer not null,
+	cred varchar(30),
+	primary key (empID, cred),
+	foreign key (empID) references employee(ID) on delete cascade);
+
+create table orderPlacement(
+	customerEmail varchar(100) not null,
+	orderID integer not null,
+	restaurant varchar(100) not null,
+	orderTime time,
+	primary key (customerEmail, orderID, restaurant),
+	foreign key (customerEmail) references customerAccount(emailAddress) on delete cascade,
+	foreign key (orderID) references foodOrder(orderID) on delete cascade,
+	foreign key (restaurant) references restaurant(name) on delete cascade);
+
+create table relatedTo(
+	customer varchar(100) not null,
+	employee integer not null,
+	relationship varchar(100),
+	primary key (customer, employee),
+	foreign key (customer) references customerAccount(emailAddress) on delete cascade,
+	foreign key (employee) references employee(ID) on delete cascade);
+
+create table menu(
+	restaurant varchar(100) not null,
+	food varchar(100) not null,
+	price decimal(6, 2),
+	primary key (restaurant, food),
+	foreign key (restaurant) references restaurant(name) on delete cascade,
+	foreign key (food) references food (name) on delete cascade);
+
+create table foodItemsinOrder(
+	orderID integer not null,
+	food varchar(100) not null,
+	primary key (orderID, food),
+	foreign key (orderID) references foodOrder(orderID) on delete cascade,
+	foreign key (food) references food(name) on delete cascade);
+
+create table delivery(
+	orderID integer not null,
+	deliveryPerson integer not null,
+	deliveryTime time,
+	primary key (orderID, deliveryPerson),
+	foreign key (orderID) references foodOrder(orderID) on delete cascade,
+	foreign key (deliveryPerson) references employee(id) on delete cascade);
+
+create table worksAt(
+	employeeID integer not null,
+	restaurant varchar(100) not null,
+	primary key (employeeID, restaurant),
+	foreign key (employeeID) references employee(ID) on delete cascade,
+	foreign key (restaurant) references restaurant(name) on delete cascade);
+    
+-- Inserting data into restaurant table
+insert into restaurant (name, streetAddress, city, pc, url) values
+('Kieran''s Pizza Palace', '123 Main St', 'Toronto', 'M1M 1M1', 'www.kieranspizzapalace.com'),
+('Kiki''s Steak House', '456 Yonge St', 'Toronto', 'M2M 2M2', 'www.kikissteakhouse.com'),
+('KC''s Diner', '789 Queen St', 'Toronto', 'M3M 3M3', 'www.kcsdiner.com');
+
+-- Inserting data into customerAccount table
+insert into customerAccount (emailAddress, firstName, lastName, cellNum, streetAddress, city, pc, creditAmt) values
+('john.doe@gmail.com', 'John', 'Doe', '4161234567', '456 Bay St', 'Toronto', 'M4M 4M4', 50.00),
+('jane.smith@gmail.com', 'Jane', 'Smith', '6479876543', '789 King St', 'Toronto', 'M5M 5M5', 25.00),
+('bob.jones@gmail.com', 'Bob', 'Jones', '9055551212', '1010 Main St', 'Toronto', 'M6M 6M6', 75.00),
+('mary.wong@gmail.com', 'Mary', 'Wong', '4165555555', '888 Bay St', 'Toronto', 'M7M 7M7', 100.00),
+('alex.lee@gmail.com', 'Alex', 'Lee', '6475551212', '333 Yonge St', 'Toronto', 'M8M 8M8', 20.00),
+('susan.kim@gmail.com', 'Susan', 'Kim', '9051234567', '777 Bloor St', 'Toronto', 'M9M 9M9', 30.00),
+('chris.nguyen@gmail.com', 'Chris', 'Nguyen', '4169876543', '555 Queen St', 'Toronto', 'M1N 1N1', 15.00),
+('lisa.patel@gmail.com', 'Lisa', 'Patel', '6475555555', '222 King St', 'Toronto', 'M2N 2N2', 50.00);
+
+-- Inserting data into foodOrder table
+insert into foodOrder (orderID, totalPrice, tip, orderDate) values
+(101, 18.00, 5.00, '2021-10-01'),
+(102, 25.00, 7.50, '2021-10-02'),
+(103, 25.00, 3.00, '2021-10-03'),
+(104, 15.00, 6.00, '2021-10-04'),
+(105, 30.00, 2.25, '2021-10-05'),
+(106, 25.00, 3.75, '2021-10-06'),
+(107, 15.00, 5.25, '2021-10-07'),
+(108, 25.00, 6.75, '2021-10-08'),
+(109, 25.00, 5.00, '2021-10-08');
+
+-- Inserting data into food table
+insert into food (name) values
+('Pepperoni Pizza'),
+('Steak'),
+('Hamburger'),
+('Chicken Wings'),
+('Fries'),
+('Salad'),
+('Pasta'),
+('Chicken Fingers');
+
+-- Inserting data into employee table
+insert into employee (ID, firstName, lastName, emailAddress, restaurantName) values
+(1, 'David', 'Lee', 'david.lee@kieranspizzapalace.com', 'Kieran''s Pizza Palace'),
+(2, 'Emily', 'Wong', 'emily.wong@kieranspizzapalace.com', 'Kieran''s Pizza Palace'),
+(3, 'Michael', 'Chen', 'michael.chen@kikissteakhouse.com', 'Kiki''s Steak House'),
+(4, 'Jennifer', 'Kim', 'jennifer.kim@kikissteakhouse.com', 'Kiki''s Steak House'),
+(5, 'Jason', 'Choi', 'jason.choi@kcsdiner.com', 'KC''s Diner'),
+(6, 'Karen', 'Park', 'karen.park@kcsdiner.com', 'KC''s Diner'),
+(7, 'Jacob', 'Lee', 'jacoblee@kcsdiner.com', 'KC''s Diner'),
+(8, 'David', 'Stevens', 'davidsteves@kieranspizzapalace.com', 'Kieran''s Pizza Palace'),
+(9, 'Bob', 'Porter', 'bobporter@kikissteakhouse.com', 'Kiki''s Steak House'),
+(10, 'John', 'Smith', 'johnsmith@kcsdiner.com', 'KC''s Diner'),
+(11, 'Ben', 'Dover', 'bendover@kieranspizzapalace.com', 'Kieran''s Pizza Palace'),
+(12, 'Joe', 'Biden', 'joebiden@kikissteakhouse.com', 'Kiki''s Steak House');
+
+
+-- Inserting data into manager table
+insert into manager (empid) values
+(1),
+(2),
+(3);
+
+-- Inserting data into serverStaff table
+insert into serverStaff (empid) values
+(4),
+(5),
+(6);
+
+-- Inserting data into chef table
+insert into chef (empid) values
+(7),
+(8),
+(9);
+
+-- Inserting data into deliveryPerson table
+insert into deliveryPerson (empid) values
+(10),
+(11),
+(12);
+
+-- Inserting data into payment table
+insert into payment (customerEmail, dates, paymentAmount) values
+('john.doe@gmail.com', '2021-10-01', 23.00),
+('jane.smith@gmail.com', '2021-10-02', 32.50),
+('bob.jones@gmail.com', '2021-10-03', 28.00),
+('mary.wong@gmail.com', '2021-10-04', 21.00),
+('alex.lee@gmail.com', '2021-10-05', 32.25),
+('susan.kim@gmail.com', '2021-10-06', 28.75),
+('chris.nguyen@gmail.com', '2021-10-07', 20.25),
+('lisa.patel@gmail.com', '2021-10-08', 31.75),
+('chris.nguyen@gmail.com', '2021-10-08', 30.00);
+
+-- Inserting data into shift table
+insert into shift (empID, theday, startTime, endTime) values
+(1, 'Monday', '09:00:00', '17:00:00'),
+(1, 'Tuesday', '09:00:00', '17:00:00'),
+(2, 'Monday', '12:00:00', '20:00:00'),
+(3, 'Tuesday', '12:00:00', '20:00:00'),
+(3, 'Wednesday', '08:00:00', '16:00:00'),
+(3, 'Thursday', '08:00:00', '16:00:00'),
+(4, 'Wednesday', '11:00:00', '19:00:00'),
+(4, 'Thursday', '11:00:00', '19:00:00'),
+(5, 'Friday', '10:00:00', '18:00:00'),
+(6, 'Saturday', '10:00:00', '18:00:00'),
+(7, 'Friday', '13:00:00', '21:00:00'),
+(8, 'Saturday', '13:00:00', '21:00:00'),
+(9, 'Sunday', '12:00:00', '20:00:00'),
+(10, 'Sunday', '12:00:00', '20:00:00'),
+(11, 'Monday', '12:00:00', '20:00:00'),
+(12, 'Tuesday', '12:00:00', '20:00:00');
+
+-- Inserting data into chefCredentials table
+insert into chefCredentials (empID, cred) values
+(7, 'Certified Pizza Chef'),
+(8, 'Certified Steak Chef'),
+(9, 'Certified Diner Chef');
+
+-- Inserting data into orderPlacement table
+insert into orderPlacement (customerEmail, orderID, restaurant, orderTime) values
+('john.doe@gmail.com', 101, 'Kieran''s Pizza Palace', '18:00:00'),
+('jane.smith@gmail.com', 102, 'Kiki''s Steak House', '19:00:00'),
+('bob.jones@gmail.com', 103, 'KC''s Diner', '20:00:00'),
+('mary.wong@gmail.com', 104, 'Kieran''s Pizza Palace', '21:00:00'),
+('alex.lee@gmail.com', 105, 'Kiki''s Steak House', '22:00:00'),
+('susan.kim@gmail.com', 106, 'KC''s Diner', '23:00:00'),
+('chris.nguyen@gmail.com', 107, 'Kieran''s Pizza Palace', '00:00:00'),
+('lisa.patel@gmail.com', 108, 'Kiki''s Steak House', '01:00:00'),
+('chris.nguyen@gmail.com', 109, 'KC''s Diner', '01:00:00');
+
+-- Inserting data into relatedTo table
+insert into relatedTo (customer, employee, relationship) values
+('john.doe@gmail.com', 4, 'Server'),
+('jane.smith@gmail.com', 5, 'Server'),
+('bob.jones@gmail.com', 6, 'Server'),
+('mary.wong@gmail.com', 4, 'Server'),
+('alex.lee@gmail.com', 5, 'Server'),
+('susan.kim@gmail.com', 12, 'Deliverer'),
+('chris.nguyen@gmail.com',10, 'Deliverer'),
+('lisa.patel@gmail.com', 11, 'Deliverer');
+
+insert into menu (restaurant, food, price) values
+('Kieran''s Pizza Palace', 'Pepperoni Pizza', 10.00),
+('Kieran''s Pizza Palace', 'Pasta', 8.00),
+('Kieran''s Pizza Palace', 'Salad', 5.00),
+('Kiki''s Steak House', 'Steak', 20.00),
+('Kiki''s Steak House', 'Salad', 5.00),
+('Kiki''s Steak House', 'Hamburger', 10.00),
+('KC''s Diner', 'Fries', 10.00),
+('KC''s Diner', 'Chicken Wings', 15.00),
+('KC''s Diner', 'Chicken Fingers', 15.00);
+
+-- Inserting data into foodItemsinOrder table
+insert into foodItemsinOrder (orderID, food) values
+(101, 'Pepperoni Pizza'),
+(101, 'Pasta'),
+(102, 'Steak'),
+(102, 'Salad'),
+(103, 'Fries'),
+(103, 'Chicken Wings'),
+(104, 'Pepperoni Pizza'),
+(104, 'Salad'),
+(105, 'Steak'),
+(105, 'Hamburger'),
+(106, 'Fries'),
+(106, 'Chicken Fingers'),
+(107, 'Pepperoni Pizza'),
+(107, 'Salad'),
+(108, 'Steak'),
+(108, 'Salad'),
+(109, 'Fries'),
+(109, 'Chicken Wings');
+
+insert into delivery (orderID, deliveryPerson, deliveryTime) values
+(101, 10, '18:30:00'),
+(102, 11, '19:30:00'),
+(103, 12, '20:30:00'),
+(104, 10, '21:30:00'),
+(105, 11, '22:30:00'),
+(106, 12, '23:30:00'),
+(107, 10, '00:30:00'),
+(108, 11, '01:30:00');
+
+insert into worksAt (employeeID, restaurant) values
+(1, 'Kieran''s Pizza Palace'),
+(2, 'Kiki''s Steak House'),
+(3, 'KC''s Diner'),
+(4, 'Kieran''s Pizza Palace'),
+(5, 'Kiki''s Steak House'),
+(6, 'KC''s Diner'),
+(7, 'Kieran''s Pizza Palace'),
+(8, 'Kiki''s Steak House'),
+(9, 'KC''s Diner'),
+(10, 'Kieran''s Pizza Palace'),
+(11, 'Kiki''s Steak House'),
+(12, 'KC''s Diner');
