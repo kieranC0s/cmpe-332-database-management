@@ -1,0 +1,78 @@
+/*This css file is for the restaurant.php page*/
+body{
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    }
+    
+    header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    }
+    
+    nav {
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+    }
+    
+    nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    }
+    
+    nav li {
+    flex: 1;
+    }
+    
+    nav li a {
+    display: block;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s ease-in-out;
+    }
+    
+    nav li a:hover {
+    background-color: #333;
+    color: #fff;
+    }
+    
+    main {
+    margin: 20px;
+    }
+    
+    main p {
+    font-size: 18px;
+    line-height: 1.5;
+    }
+    
+    main img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    }
+    
+    footer {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    }
+    
+    footer p {
+    margin: 0;
+    }
+    
+    h1 {
+        color: #db6714;
+    }
